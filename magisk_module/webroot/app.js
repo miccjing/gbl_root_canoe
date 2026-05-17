@@ -185,7 +185,6 @@ function applyLanguage(lang) {
     const key = el.dataset.i18n;
     if (t[key]) el.textContent = t[key];
   });
-  refreshStatus();
 }
 
 function getKsuBridge() {
@@ -202,7 +201,7 @@ function toast(message) {
 
 function moduleInfo() {
   const bridge = getKsuBridge();
-  if (!bridge?.moduleInfo) throw new Error(state.lang === "zh" ? "当前页面不在 KernelSU WebUI 环境中" : "Not in KernelSU WebUI environment");
+  if (!bridge?.moduleInfo) return null;
   const raw = bridge.moduleInfo();
   return typeof raw === "string" ? JSON.parse(raw) : raw;
 }
@@ -224,7 +223,7 @@ function extractStdout(raw) {
 
 function exec(command) {
   const bridge = getKsuBridge();
-  if (!bridge?.exec) throw new Error(state.lang === "zh" ? "KernelSU exec API 不可用" : "KernelSU exec API unavailable");
+  if (!bridge?.exec) return "";
   return extractStdout(bridge.exec(command)).replace(/\t/g, "\n");
 }
 
@@ -291,6 +290,11 @@ function refreshStatus() {
     if (raw === state.prevStatusRaw) return state.status;
     state.prevStatusRaw = raw;
     const s = parseKeyValueOutput(raw);
+    if(s.USER_LANG === "en"){
+      applyLanguage("en");
+    }else if(s.USER_LANG === "zh"){
+      applyLanguage("zh");
+    }
     renderStatus(s);
     return s;
   } catch (e) {
@@ -404,22 +408,10 @@ function manualRefresh() {
 async function init() {
   try {
     const info = moduleInfo();
+    if(!info) return;
     state.moduleDir = info.moduleDir;
     state.scriptPath = `${state.moduleDir}/bin/bl_flasher.sh`;
-
-    let defLang = "zh";
-    try {
-      const res = await fetch(`/lang.txt`);
-      if (res.ok) {
-        const txt = await res.text();
-        defLang = txt.trim() === "en" ? "en" : "zh";
-      }
-    } catch (e) {
-
-    }
-
-    applyLanguage(defLang);
-
+    refreshStatus();
   } catch (e) {
     elements.stateChip.textContent = state.lang === "zh" ? "WebUI 初始化失败" : "WebUI Init Failed";
     elements.stateChip.className = "chip chip-danger";
@@ -436,9 +428,7 @@ async function init() {
   elements.nextConfirmButton.addEventListener("click", handleConfirmProgress);
   elements.confirmModal.addEventListener("click", e => e.target === elements.confirmModal && closeConfirmModal());
 
-  refreshStatus();
-  refreshLog();
-  schedulePoll(state.status?.RUNNING === "1" ? 3000 : 8000);
+  schedulePoll(3000);
 }
 
 init();
