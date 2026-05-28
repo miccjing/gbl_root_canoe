@@ -15,29 +15,23 @@
 - `gcc` / `clang`, `lld`, `make`, `zip`, `python3`
 - `liblzma-dev` (用于编译 `extractfv` 解包工具)
 - **Android NDK**（用于 `make build_module` 构建 Android 平台的修补工具）
-- **MinGW-w64**（即 `x86_64-w64-mingw32-gcc`，用于通过 `make dist_loader_windows` 交叉编译 Windows 平台工具）
+- **MinGW-w64**
 
 ### 核心构建目标
 
 **注意**：在仅编译工具包或 Magisk 模块时，**不需要**事先提供 `abl.img`。
 你可以在执行 `make` 时传入 `DIST_NAME` 环境变量来指定输出压缩包的名字（例如：`DIST_NAME=my_toolkit make dist_loader`）。
 
-- **`make dist_loader`**
-  编译 EDK2 原生载荷 (`loader.elf`)，并将必要的修补工具（如 `extractfv`, `patch_abl`, `elf_inject` 等）编译为 Linux 原生程序，最后打包输出到 `release/` 目录的 `.zip` 文件中。
+- **`make target_toolkit_linux`**
+  编译 EDK2 原生载荷 (`loader.elf`)，并将必要的修补工具（如 `extractfv`, `patch_abl`, `elf_inject` 等）编译为 Linux 原生程序。
 
-- **`make dist_loader_windows`**
-  逻辑与 `dist_loader` 相同，但使用 MinGW-w64 将修补工具交叉编译为 Windows 原生的 `.exe` 格式文件。
+- **`make target_toolkit_windows`**
+  逻辑与 `target_toolkit_linux` 相同，但使用 MinGW-w64 将修补工具交叉编译为 Windows 原生的 `.exe` 格式文件。
 
-- **`make build_module`**
-  使用 NDK 将修补工具交叉编译至 Android 原生平台架构，并构建 EDK2 载荷。这些组件将被封装为一个标准的 Magisk 模块（zip 刷入包，输出在 `release/` 文件夹）。
+- **`make target_magisk_module`**
+  使用 NDK 将修补工具交叉编译至 Android 原生平台架构，并构建 EDK2 载荷。这些组件将被封装为一个标准的 Magisk 模块。
 
-- **`make dist`**
-  构建特定机型的预补丁efi。
-
-- **`make build_superfbonly`**
-  只构建superfastboot，并且在原因的启动内嵌efi位置改为直接交还控制权给abl（调试用，无假回锁效果）
-
-- **`make build_generic`**
+- **`make target_generic_efi`**
   内嵌补丁工具，多机型通用，但是高版本兼容不佳，逐步弃用。
 
 ---
