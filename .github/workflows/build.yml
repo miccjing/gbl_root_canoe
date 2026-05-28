@@ -34,7 +34,7 @@ jobs:
     - name: Build Magisk Module
       run: |
         make clean
-        DIST_NAME=magisk_module make build_module
+        make target_magisk_module
 
     - name: Unpack artifacts
       run: |
