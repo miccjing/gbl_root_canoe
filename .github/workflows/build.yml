@@ -41,13 +41,13 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: toolkit_linux
-        path: artifacts/toolkit_linux/dist/*
+        path: artifacts/toolkit_linux/*
 
     - name: Upload Windows Toolkit
       uses: actions/upload-artifact@v4
       with:
         name: toolkit_windows
-        path: artifacts/toolkit_windows/dist/*
+        path: artifacts/toolkit_windows/*
 
     - name: Upload Magisk Module
       uses: actions/upload-artifact@v4
