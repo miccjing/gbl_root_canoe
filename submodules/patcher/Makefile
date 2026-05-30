@@ -1,4 +1,4 @@
-SRCS := $(wildcard src/*.c src/**/*.c)
+SRCS := $(shell find src -name '*.c')
 CFLAGS := -O2 -Iinclude
 
 clean:

@@ -54,4 +54,6 @@ int32_t track_forward(char* buffer, int32_t size, int32_t start_offset,
 int32_t find_ldrB_instructio_reverse(char* buffer, int32_t size,
                                    int32_t start_offset, int8_t target_register,int32_t* global_var_offset, SourceCallback callback);
 int32_t empty_source_callback(char* buffer, int32_t size, int32_t now_offset, int8_t current_reg_target, int32_t start_offset);
-                                   #endif /* INST_UTILS_H */
+bool str_at(const char* buffer, int32_t size, int64_t file_off, const char* needle);    
+int64_t calc_adrl_file_offset(const char* buffer, int32_t adrp_off, uint64_t load_base);                               
+#endif /* INST_UTILS_H */

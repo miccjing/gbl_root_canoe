@@ -290,3 +290,22 @@ int32_t track_forward(char* buffer, int32_t size, int32_t start_offset,
     printf("Forward tracking: no sink STRB found after anchor 0x%X\n", ancher_offset);
     return FAILURE;
 }
+bool str_at(const char* buffer, int32_t size, int64_t file_off, const char* needle) {
+    if (file_off < 0) return false;
+    int32_t len = strlen(needle);
+    if ((int32_t)file_off + len >= size) return false;
+    return memcmp(buffer + file_off, needle, len) == 0;
+}
+int64_t calc_adrl_file_offset(const char* buffer, int32_t adrp_off, uint64_t load_base) {
+    DecodedInst d0 = decode_at(buffer, adrp_off);
+    DecodedInst d1 = decode_at(buffer, adrp_off + 4);
+
+    if (d0.type != INST_ADRP) return -1;
+    if (d1.type != INST_ADD_X_IMM) return -1;
+    if (d1.rt != d0.rt || d1.rn != d0.rt) return -1;
+
+    uint64_t pc      = load_base + (uint64_t)adrp_off;
+    uint64_t page_pc = pc & ~0xFFFull;
+    uint64_t target_va = (uint64_t)((int64_t)page_pc + d0.simm) + d1.imm;
+    return (int64_t)(target_va - load_base);
+}
