@@ -1,5 +1,19 @@
 #include "patchs/oplus/warning.h"
 #include "arm64_inst/utils.h"
+int32_t find_warning_offset(char* buffer, int32_t size, uint64_t load_base) {
+    if (size < 24) return 0;
+
+    for (int32_t i = 0; i <= size - 24; i += 4) {
+        int64_t off0 = calc_adrl_file_offset(buffer, i,      load_base);
+        int64_t off1 = calc_adrl_file_offset(buffer, i + 8,  load_base);
+        if (off0 < 0 || off1 < 0) continue;
+
+        if (!str_at(buffer, size, off0, "Orange State\n")) continue;
+        if (!str_at(buffer, size, off1, "Your device has been unlocked and can't be trusted\n"))   continue;
+        return i;
+    }
+    return -1;
+}
 bool patch_warning(char* buffer, int32_t size, int32_t global_var_offset) {
     int32_t warn_off = find_warning_offset(buffer, size, 0);
     if (warn_off < 0) {

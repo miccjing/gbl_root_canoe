@@ -191,20 +191,6 @@ int32_t patch_adrl_unlocked_to_locked(char* buffer, int32_t size, uint64_t load_
     return patched;
 }
 
-int32_t find_warning_offset(char* buffer, int32_t size, uint64_t load_base) {
-    if (size < 24) return 0;
-
-    for (int32_t i = 0; i <= size - 24; i += 4) {
-        int64_t off0 = calc_adrl_file_offset(buffer, i,      load_base);
-        int64_t off1 = calc_adrl_file_offset(buffer, i + 8,  load_base);
-        if (off0 < 0 || off1 < 0) continue;
-
-        if (!str_at(buffer, size, off0, "Orange State\n")) continue;
-        if (!str_at(buffer, size, off1, "Your device has been unlocked and can't be trusted\n"))   continue;
-        return i;
-    }
-    return -1;
-}
 #include "patchs/oplus/warning.h"
 bool PatchBuffer(char* data, int32_t size) {
     if (patch_abl_gbl(data, size) != 0)
